@@ -103,7 +103,7 @@ public class BlockBeehive extends BlockSolidMeta implements Faceable, BlockEntit
         if (player == null) {
             setBlockFace(BlockFace.SOUTH);
         } else {
-            setBlockFace(player.getDirection().getOpposite());
+            setBlockFace(player.getDirection());
         }
     
         int honeyLevel = item.hasCustomBlockData() ? item.getCustomBlockData().getByte("HoneyLevel") : 0;
