@@ -571,8 +571,7 @@ public abstract class BlockLiquid extends BlockTransparentMeta {
     @PowerNukkitOnly
     @Since("1.4.0.0-PN")
     public boolean isSourceOrFlowingDown() {
-        int liquidDepth = getLiquidDepth();
-        return liquidDepth == 0 || liquidDepth == 8;
+        return isSource() || isFlowingDown();
     }
 
     @Since("1.4.0.0-PN")

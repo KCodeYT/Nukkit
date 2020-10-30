@@ -15,6 +15,7 @@ import cn.nukkit.inventory.CampfireInventory;
 import cn.nukkit.inventory.CampfireRecipe;
 import cn.nukkit.inventory.ContainerInventory;
 import cn.nukkit.item.*;
+import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.Sound;
@@ -129,17 +130,19 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
         final Block layer1 = level.getBlock(this, 1);
         
         setBlockFace(player != null ? player.getDirection().getOpposite() : null);
-        boolean defaultLayerCheck = (block instanceof BlockWater && ((BlockWater)block).isSourceOrFlowingDown()) || block instanceof BlockIceFrosted;
+        boolean defaultLayerCheck = (layer0 instanceof BlockWater && ((BlockWater)layer0).isSourceOrFlowingDown()) || layer0 instanceof BlockIceFrosted;
         boolean layer1Check = (layer1 instanceof BlockWater && ((BlockWater)layer1).isSourceOrFlowingDown()) || layer1 instanceof BlockIceFrosted;
         if (defaultLayerCheck || layer1Check) {
             setExtinguished(true);
             this.level.addSound(this, Sound.RANDOM_FIZZ, 0.5f, 2.2f);
-            this.level.setBlock(this, 1, defaultLayerCheck ? block : layer1, false, false);
+            Block water = Block.get(Block.WATER);
+            water.setPropertyValue(BlockWater.LIQUID_DEPTH, defaultLayerCheck ? layer0.getIntValue(BlockWater.LIQUID_DEPTH) : layer1.getIntValue(BlockWater.LIQUID_DEPTH));
+            this.level.setBlock(this, 1, water, false, false);
         } else {
             this.level.setBlock(this, 1, Block.get(BlockID.AIR), false, false);
         }
 
-        this.level.setBlock(block, this, true, true);
+        this.level.setBlock(this, this, false, false);
         try {
             CompoundTag nbt = new CompoundTag();
             
@@ -209,7 +212,7 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
             this.level.setBlock(this, this, true, true);
             this.level.addSound(this, Sound.RANDOM_FIZZ, 0.5f, 2.2f);
             itemUsed = true;
-        } else if (item.getId() == ItemID.FLINT_AND_STEEL) {
+        } else if (item.getId() == ItemID.FLINT_AND_STEEL || item.isSword() && item.hasEnchantment(Enchantment.ID_FIRE_ASPECT)) {
             item.useOn(this);
             setExtinguished(false);
             this.level.setBlock(this, this, true, true);
