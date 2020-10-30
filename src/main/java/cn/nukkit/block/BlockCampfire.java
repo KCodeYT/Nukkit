@@ -124,11 +124,13 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
         if (down().getId() == CAMPFIRE_BLOCK || down().getId() == SOUL_CAMPFIRE_BLOCK) {
             return false;
         }
-        
+
         final Block layer0 = level.getBlock(this, 0);
         final Block layer1 = level.getBlock(this, 1);
-        
+
         setBlockFace(player != null ? player.getDirection().getOpposite() : null);
+
+        this.level.setBlock(block, this, true, true);
         boolean defaultLayerCheck = (block instanceof BlockWater && ((BlockWater)block).isSourceOrFlowingDown()) || block instanceof BlockIceFrosted;
         boolean layer1Check = (layer1 instanceof BlockWater && ((BlockWater)layer1).isSourceOrFlowingDown()) || layer1 instanceof BlockIceFrosted;
         if (defaultLayerCheck || layer1Check) {
@@ -139,7 +141,6 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
             this.level.setBlock(this, 1, Block.get(BlockID.AIR), false, false);
         }
 
-        this.level.setBlock(block, this, true, true);
         try {
             CompoundTag nbt = new CompoundTag();
             
