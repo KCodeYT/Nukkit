@@ -234,44 +234,50 @@ public class EntityBoat extends EntityVehicle {
             }
         }
 
-        Entity ent;
-
         if (passengers.size() == 1) {
-            (ent = this.passengers.get(0)).setSeatPosition(getMountedOffset(ent));
-            super.updatePassengerPosition(ent);
+            Entity passenger = this.passengers.get(0);
+            passenger.setSeatPosition(getMountedOffset(passenger));
+            super.updatePassengerPosition(passenger);
 
             if (sendLinks) {
-                broadcastLinkPacket(ent, SetEntityLinkPacket.TYPE_RIDE);
+                broadcastLinkPacket(passenger, SetEntityLinkPacket.TYPE_RIDE);
+                passenger.setDataProperty(new ByteEntityData(DATA_RIDER_ROTATION_LOCKED, 1));
+                passenger.setDataProperty(new FloatEntityData(DATA_RIDER_MAX_ROTATION, 90));
+                passenger.setDataProperty(new FloatEntityData(DATA_RIDER_MIN_ROTATION, -90));
             }
         } else if (passengers.size() == 2) {
-            if (!((ent = passengers.get(0)) instanceof Player)) { //swap
-                Entity passenger2 = passengers.get(1);
+            Entity firstPassenger = this.passengers.get(0);
+            Entity secondPassenger = this.passengers.get(1);
+            if (!(firstPassenger instanceof Player)) { //swap
+                if (secondPassenger instanceof Player) {
+                    this.passengers.set(0, secondPassenger);
+                    this.passengers.set(1, firstPassenger);
 
-                if (passenger2 instanceof Player) {
-                    this.passengers.set(0, passenger2);
-                    this.passengers.set(1, ent);
-
-                    ent = passenger2;
+                    Entity tempPassenger = firstPassenger;
+                    firstPassenger = secondPassenger;
+                    secondPassenger = tempPassenger;
                 }
             }
 
-            ent.setSeatPosition(getMountedOffset(ent).add(RIDER_PASSENGER_OFFSET));
-            super.updatePassengerPosition(ent);
+            firstPassenger.setSeatPosition(getMountedOffset(firstPassenger));
+            super.updatePassengerPosition(firstPassenger);
             if (sendLinks) {
-                broadcastLinkPacket(ent, SetEntityLinkPacket.TYPE_RIDE);
+                broadcastLinkPacket(firstPassenger, SetEntityLinkPacket.TYPE_RIDE);
+                firstPassenger.setDataProperty(new ByteEntityData(DATA_RIDER_ROTATION_LOCKED, 1));
+                firstPassenger.setDataProperty(new FloatEntityData(DATA_RIDER_MAX_ROTATION, 90));
+                firstPassenger.setDataProperty(new FloatEntityData(DATA_RIDER_MIN_ROTATION, -90));
             }
 
-            (ent = this.passengers.get(1)).setSeatPosition(getMountedOffset(ent).add(PASSENGER_OFFSET));
+            secondPassenger.setSeatPosition(getMountedOffset(secondPassenger).add(PASSENGER_OFFSET));
 
-            super.updatePassengerPosition(ent);
+            super.updatePassengerPosition(secondPassenger);
 
             if (sendLinks) {
-                broadcastLinkPacket(ent, SetEntityLinkPacket.TYPE_PASSENGER);
+                broadcastLinkPacket(secondPassenger, SetEntityLinkPacket.TYPE_PASSENGER);
+                secondPassenger.setDataProperty(new ByteEntityData(DATA_RIDER_ROTATION_LOCKED, 1));
+                secondPassenger.setDataProperty(new FloatEntityData(DATA_RIDER_MAX_ROTATION, 90));
+                secondPassenger.setDataProperty(new FloatEntityData(DATA_RIDER_MIN_ROTATION, -90));
             }
-
-            float yawDiff = ent.getId() % 2 == 0 ? 90 : 270;
-            ent.setRotation(this.yaw + yawDiff, ent.pitch);
-            ent.updateMovement();
         } else {
             for (Entity passenger : passengers) {
                 super.updatePassengerPosition(passenger);
@@ -309,6 +315,9 @@ public class EntityBoat extends EntityVehicle {
 
     @Override
     public boolean mountEntity(Entity entity) {
+        Block blockAbove = this.getLevel().getBlock(this.add(0, this.getHeight(), 0));
+        if((blockAbove instanceof BlockWater || blockAbove.getId() == Block.WATER || blockAbove.getId() == Block.STILL_WATER) && entity.riding == null)
+            return false;
         boolean player = this.passengers.size() >= 1 && this.passengers.get(0) instanceof Player;
         byte mode = SetEntityLinkPacket.TYPE_PASSENGER;
 
@@ -323,8 +332,7 @@ public class EntityBoat extends EntityVehicle {
 
             entity.setDataProperty(new ByteEntityData(DATA_RIDER_ROTATION_LOCKED, 1));
             entity.setDataProperty(new FloatEntityData(DATA_RIDER_MAX_ROTATION, 90));
-
-            entity.setDataProperty(new FloatEntityData(DATA_RIDER_MIN_ROTATION, this.passengers.indexOf(entity) == 1 ? -90 : 0));
+            entity.setDataProperty(new FloatEntityData(DATA_RIDER_MIN_ROTATION, -90));
 
             //            if(entity instanceof Player && mode == SetEntityLinkPacket.TYPE_RIDE){ //TODO: controlling?
 //                entity.setDataProperty(new ByteEntityData(DATA_FLAG_WASD_CONTROLLED))
@@ -343,8 +351,10 @@ public class EntityBoat extends EntityVehicle {
     public boolean dismountEntity(Entity entity) {
         boolean r = super.dismountEntity(entity);
 
-        updatePassengers();
+        updatePassengers(true);
         entity.setDataProperty(new ByteEntityData(DATA_RIDER_ROTATION_LOCKED, 0));
+        if(entity instanceof Player)
+            ((Player) entity).resetInAirTicks();
 
         return r;
     }
@@ -360,7 +370,7 @@ public class EntityBoat extends EntityVehicle {
             return false;
         }
 
-        super.mountEntity(player);
+        this.mountEntity(player);
         return super.onInteract(player, item, clickedPos);
     }
 

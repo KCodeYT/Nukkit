@@ -207,7 +207,7 @@ public class Explosion {
             Vector3 pos = new Vector3(block.x, block.y, block.z);
 
             for (BlockFace side : BlockFace.values()) {
-                Vector3 sideBlock = pos.getSide(side);
+                Block sideBlock = level.getBlock(pos.getSide(side));
                 long index = Hash.hashBlock((int) sideBlock.x, (int) sideBlock.y, (int) sideBlock.z);
                 if (!this.affectedBlocks.contains(sideBlock) && !updateBlocks.contains(index)) {
                     BlockUpdateEvent ev = new BlockUpdateEvent(this.level.getBlock(sideBlock));
