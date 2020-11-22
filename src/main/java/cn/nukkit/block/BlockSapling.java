@@ -80,7 +80,7 @@ public class BlockSapling extends BlockFlowable {
     }
 
     public boolean onActivate(@Nonnull Item item, Player player) {
-        if (item.getId() == Item.DYE && item.getDamage() == 0x0F) { //BoneMeal
+        if (item.isFertilizer()) { //BoneMeal
             if (player != null && (player.gamemode & 0x01) == 0) {
                 item.count--;
             }
@@ -123,6 +123,7 @@ public class BlockSapling extends BlockFlowable {
     private void grow() {
         BasicGenerator generator;
         boolean bigTree = false;
+
         Vector3 vector3 = new Vector3();
 
         switch (this.getDamage() & 0x07) {
@@ -155,10 +156,12 @@ public class BlockSapling extends BlockFlowable {
                 ObjectTree.growTree(chunkManager, this.getFloorX(), this.getFloorY(), this.getFloorZ(), new NukkitRandom(), this.getDamage() & 0x07);
                 StructureGrowEvent ev = new StructureGrowEvent(this, chunkManager.getBlocks());
                 this.level.getServer().getPluginManager().callEvent(ev);
-                if(ev.isCancelled()) {
+                if (ev.isCancelled()) {
                     return;
                 }
-                ev.getBlockList().forEach(block -> this.level.setBlock(block, block));
+                for(Block block : ev.getBlockList()) {
+                    this.level.setBlockAt(block.getFloorX(), block.getFloorY(), block.getFloorZ(), block.getId(), block.getDamage());
+                }
                 return;
         }
 
@@ -186,7 +189,9 @@ public class BlockSapling extends BlockFlowable {
             }
             return;
         }
-        ev.getBlockList().forEach(block -> this.level.setBlock(block, block));
+        for(Block block : ev.getBlockList()) {
+            this.level.setBlockAt(block.getFloorX(), block.getFloorY(), block.getFloorZ(), block.getId(), block.getDamage());
+        }
     }
 
     private Vector2 findSaplings(int type) {

@@ -14,8 +14,8 @@ import cn.nukkit.utils.Faceable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Pub4Game
@@ -112,7 +112,7 @@ public class BlockEndPortalFrame extends BlockTransparentMeta implements Faceabl
 
     @Since("1.3.0.0-PN")
     public void createPortal() {
-        Vector3 centerSpot = this.searchCenter(new HashSet<>());
+        Vector3 centerSpot = this.searchCenter(new ArrayList<>());
         if(centerSpot != null) {
             for(int x = -2; x <= 2; x++) {
                 for(int z = -2; z <= 2; z++) {
@@ -138,7 +138,7 @@ public class BlockEndPortalFrame extends BlockTransparentMeta implements Faceabl
         }
     }
 
-    private Vector3 searchCenter(Set<Block> visited) {
+    private Vector3 searchCenter(List<Block> visited) {
         for(int x = -2; x <= 2; x++) {
             if(x == 0)
                 continue;
