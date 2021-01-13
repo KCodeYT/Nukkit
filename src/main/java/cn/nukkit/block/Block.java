@@ -798,10 +798,10 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
     @PowerNukkitOnly
     @Since("1.4.0.0-PN")
     public static void registerBlockImplementation(int blockId, @Nonnull Class<? extends Block> blockClass, @Nonnull String persistenceName, boolean receivesRandomTick) {
-        Preconditions.checkArgument(blockId >= 0, "Negative block id {}", blockId);
+        Preconditions.checkArgument(blockId >= 0, "Negative block id %s", blockId);
         Preconditions.checkNotNull(blockClass, "blockClass was null");
         Preconditions.checkNotNull(persistenceName, "persistenceName was null");
-        Preconditions.checkArgument(blockId < MAX_BLOCK_ID, "blockId {} must be less than {}", blockId, MAX_BLOCK_ID);
+        Preconditions.checkArgument(blockId < MAX_BLOCK_ID, "blockId %s must be less than %s", blockId, MAX_BLOCK_ID);
         Block mainBlock;
         BlockProperties properties;
         try {
@@ -2151,5 +2151,24 @@ public abstract class Block extends Position implements Metadatable, Cloneable, 
     @Since("1.4.0.0-PN")
     public int getItemMaxStackSize() {
         return 64;
+    }
+
+    /**
+     * Check if a block is getting powered threw a block or directly.
+     * @return if the gets powered.
+     */
+    @PowerNukkitOnly
+    @PowerNukkitDifference(info = "Used so often, why not create own method here?", since = "1.4.0.0-PN")
+    public boolean isGettingPower() {
+        if (!this.level.getServer().isRedstoneEnabled()) return false;
+
+        for (BlockFace side : BlockFace.values()) {
+            Block b = this.getSide(side).getLevelBlock();
+
+            if (this.level.isSidePowered(b.getLocation(), side)) {
+                return true;
+            }
+        }
+        return this.level.isBlockPowered(this.getLocation());
     }
 }

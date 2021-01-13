@@ -1,6 +1,8 @@
 package cn.nukkit;
 
 import cn.nukkit.AdventureSettings.Type;
+import cn.nukkit.api.DeprecationDetails;
+import cn.nukkit.api.PowerNukkitDifference;
 import cn.nukkit.api.PowerNukkitOnly;
 import cn.nukkit.api.Since;
 import cn.nukkit.block.*;
@@ -15,6 +17,7 @@ import cn.nukkit.entity.*;
 import cn.nukkit.entity.data.*;
 import cn.nukkit.entity.item.*;
 import cn.nukkit.entity.projectile.EntityArrow;
+import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.entity.projectile.EntityThrownTrident;
 import cn.nukkit.event.block.ItemFrameDropItemEvent;
 import cn.nukkit.event.block.LecternPageChangeEvent;
@@ -163,6 +166,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     protected final BiMap<Integer, Inventory> windowIndex = windows.inverse();
     protected final Set<Integer> permanentWindows = new IntOpenHashSet();
     private boolean inventoryOpen;
+    @Since("1.3.2.0-PN") protected int closingWindowId = Integer.MIN_VALUE;
 
     protected int messageCounter = 2;
 
@@ -232,8 +236,6 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
 
     protected boolean checkMovement = true;
 
-    private final Queue<DataPacket> packetQueue = new ConcurrentLinkedDeque<>();
-
     private PermissibleBase perm = null;
 
     private int exp = 0;
@@ -278,16 +280,14 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     protected double lastRightClickTime = 0.0;
     protected Vector3 lastRightClickPos = null;
 
+    private int timeSinceRest;
+
     protected int lastPlayerdLevelUpSoundTime = 0;
     
     private TaskHandler delayedPosTrackingUpdate;
 
     private float soulSpeedMultiplier = 1;
     private boolean wasInSoulSandCompatible;
-
-    @PowerNukkitOnly
-    @Since("1.4.0.0-PN")
-    private int timeSinceRest;
 
     public float getSoulSpeedMultiplier() {
         return this.soulSpeedMultiplier;
@@ -832,7 +832,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         pk.subChunkCount = subChunkCount;
         pk.data = payload;
 
-        this.batchDataPacket(pk);
+        this.dataPacket(pk);
 
         if (this.spawned) {
             for (Entity entity : this.level.getChunkEntities(x, z).values()) {
@@ -1102,27 +1102,11 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         return true;
     }
 
+    @DeprecationDetails(by = "Cloudburst Nukkit", since = "1.3.2.0-PN", replaceWith = "dataPacket(DataPacket)",
+            reason = "Batching packet is now handled near the RakNet layer")
+    @Deprecated
     public boolean batchDataPacket(DataPacket packet) {
-        if (packet instanceof BatchPacket) {
-            this.directDataPacket(packet); // We don't want to batch a batched packet...
-        }
-        if (!this.connected) {
-            return false;
-        }
-
-        try (Timing timing = Timings.getSendDataPacketTiming(packet)) {
-            DataPacketSendEvent event = new DataPacketSendEvent(this, packet);
-            this.server.getPluginManager().callEvent(event);
-            if (event.isCancelled()) {
-                return false;
-            }
-            if (log.isTraceEnabled() && !server.isIgnoredPacket(packet.getClass())) {
-                log.trace("Outbound {}: {}", this.getName(), packet);
-            }
-
-            this.packetQueue.offer(packet);
-        }
-        return true;
+        return this.dataPacket(packet);
     }
 
     /**
@@ -1133,12 +1117,34 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
      * @return packet successfully sent
      */
     public boolean dataPacket(DataPacket packet) {
-        return batchDataPacket(packet);
+        if (!this.connected) {
+            return false;
+        }
+
+        try (Timing ignored = Timings.getSendDataPacketTiming(packet)) {
+            DataPacketSendEvent ev = new DataPacketSendEvent(this, packet);
+            this.server.getPluginManager().callEvent(ev);
+            if (ev.isCancelled()) {
+                return false;
+            }
+
+            if (log.isTraceEnabled() && !server.isIgnoredPacket(packet.getClass())) {
+                log.trace("Outbound {}: {}", this.getName(), packet);
+            }
+
+            this.interfaz.putPacket(this, packet, false, true);
+        }
+        return true;
     }
 
+    @DeprecationDetails(by = "Cloudburst Nukkit", since = "2019-05-08", replaceWith = "dataPacket(DataPacket)",
+            reason = "ACKs are handled by the RakNet layer only")
+    @PowerNukkitDifference(since = "1.3.2.0-PN", 
+            info = "Cloudburst changed the return values from 0/-1 to 1/0, breaking backward compatibility for no reason, " +
+                    "we reversed that.")
     @Deprecated
     public int dataPacket(DataPacket packet, boolean needACK) {
-        return this.dataPacket(packet) ? 0 : -1;
+        return dataPacket(packet) ? 0 : -1;
     }
 
     /**
@@ -1148,26 +1154,21 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
      * @param packet packet to send
      * @return packet successfully sent
      */
+    @Deprecated
+    @DeprecationDetails(by = "Cloudburst Nukkit", since = "1.3.2.0-PN", replaceWith = "dataPacket(DataPacket)",
+            reason = "Direct packets are no longer allowed")
     public boolean directDataPacket(DataPacket packet) {
-        if (!this.connected) {
-            return false;
-        }
-
-        try (Timing timing = Timings.getSendDataPacketTiming(packet)) {
-            DataPacketSendEvent ev = new DataPacketSendEvent(this, packet);
-            this.server.getPluginManager().callEvent(ev);
-            if (ev.isCancelled()) {
-                return false;
-            }
-
-            this.interfaz.putPacket(this, packet, false, true);
-        }
-        return true;
+        return this.dataPacket(packet);
     }
 
+    @DeprecationDetails(by = "Cloudburst Nukkit", since = "2019-05-08", replaceWith = "dataPacket(DataPacket)",
+            reason = "ACK are handled by the RakNet layer and direct packets are no longer allowed")
+    @PowerNukkitDifference(since = "1.3.2.0-PN",
+            info = "Cloudburst changed the return values from 0/-1 to 1/0, breaking backward compatibility for no reason, " +
+                    "we reversed that.")
     @Deprecated
     public int directDataPacket(DataPacket packet, boolean needACK) {
-        return this.directDataPacket(packet) ? 0 : -1;
+        return this.dataPacket(packet) ? 0 : -1;
     }
 
     public int getPing() {
@@ -2001,17 +2002,6 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     }
 
     public void checkNetwork() {
-        if (!this.packetQueue.isEmpty()) {
-            Player[] pArr = new Player[]{this};
-            List<DataPacket> toBatch = new ArrayList<>();
-            DataPacket packet;
-            while ((packet = this.packetQueue.poll()) != null) {
-                toBatch.add(packet);
-            }
-            DataPacket[] arr = toBatch.toArray(new DataPacket[0]);
-            this.server.batchPackets(pArr, arr, false);
-        }
-
         if (!this.isOnline()) {
             return;
         }
@@ -2023,7 +2013,6 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         if (!this.loadQueue.isEmpty() || !this.spawned) {
             this.sendNextChunk();
         }
-
     }
 
     public boolean canInteract(Vector3 pos, double maxDistance) {
@@ -2278,7 +2267,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             return;
         }
 
-        try (Timing timing = Timings.getReceiveDataPacketTiming(packet)) {
+        try (Timing ignored = Timings.getReceiveDataPacketTiming(packet)) {
             DataPacketReceiveEvent ev = new DataPacketReceiveEvent(this, packet);
             this.server.getPluginManager().callEvent(ev);
             if (ev.isCancelled()) {
@@ -2320,7 +2309,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                             disconnectPacket.encode();
                             BatchPacket batch = new BatchPacket();
                             batch.payload = disconnectPacket.getBuffer();
-                            this.directDataPacket(batch);
+                            this.dataPacket(batch);
                             // Still want to run close() to allow the player to be removed properly
                         }
                         this.close("", message, false);
@@ -2516,7 +2505,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                                     return false;
                                 }
                             }).map(Field::getName).findFirst();
-                    log.warn("Received packet violation warning"+ packetName.map(name-> " for packet "+name).orElse("")+": " + packet.toString());
+                    log.warn("Violation warning from " + this.getName() + packetName.map(name-> " for packet "+name).orElse("")+": " + packet.toString());
                     break;
                 case ProtocolInfo.EMOTE_PACKET:
                     for (Player viewer : this.getViewers().values()) {
@@ -2816,6 +2805,52 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                                 this.setSwimming(false);
                             }
                             break;
+                        case PlayerActionPacket.ACTION_START_SPIN_ATTACK:
+                            if (this.inventory.getItemInHand().getId() != ItemID.TRIDENT) {
+                                this.sendPosition(this, this.yaw, this.pitch, MovePlayerPacket.MODE_RESET);
+                                break;
+                            }
+                            
+                            int riptideLevel = this.inventory.getItemInHand().getEnchantmentLevel(Enchantment.ID_TRIDENT_RIPTIDE);
+                            if (riptideLevel < 1) {
+                                this.sendPosition(this, this.yaw, this.pitch, MovePlayerPacket.MODE_RESET);
+                                break;
+                            }
+                            
+                            if (!(this.isTouchingWater() || (this.getLevel().isRaining() && this.getLevel().canBlockSeeSky(this)))) {
+                                this.sendPosition(this, this.yaw, this.pitch, MovePlayerPacket.MODE_RESET);
+                                break;
+                            }
+                            
+                            PlayerToggleSpinAttackEvent playerToggleSpinAttackEvent = new PlayerToggleSpinAttackEvent(this, true);
+                            this.server.getPluginManager().callEvent(playerToggleSpinAttackEvent);
+
+                            if (playerToggleSpinAttackEvent.isCancelled()) {
+                                this.sendPosition(this, this.yaw, this.pitch, MovePlayerPacket.MODE_RESET);
+                            } else {
+                                this.setSpinAttacking(true);
+                                
+                                Sound riptideSound;
+                                if (riptideLevel >= 3) {
+                                    riptideSound = Sound.ITEM_TRIDENT_RIPTIDE_3;
+                                } else if (riptideLevel == 2) {
+                                    riptideSound = Sound.ITEM_TRIDENT_RIPTIDE_2;
+                                } else {
+                                    riptideSound = Sound.ITEM_TRIDENT_RIPTIDE_1;
+                                }
+                                this.level.addSound(this, riptideSound);
+                            }
+                            break packetswitch;
+                        case PlayerActionPacket.ACTION_STOP_SPIN_ATTACK:
+                            playerToggleSpinAttackEvent = new PlayerToggleSpinAttackEvent(this, false);
+                            this.server.getPluginManager().callEvent(playerToggleSpinAttackEvent);
+
+                            if (playerToggleSpinAttackEvent.isCancelled()) {
+                                this.sendData(this);
+                            } else {
+                                this.setSpinAttacking(false);
+                            }
+                            break;
                     }
 
                     this.setUsingItem(false);
@@ -3072,7 +3107,9 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                     if (this.windowIndex.containsKey(containerClosePacket.windowId)) {
                         this.server.getPluginManager().callEvent(new InventoryCloseEvent(this.windowIndex.get(containerClosePacket.windowId), this));
                         if (containerClosePacket.windowId == ContainerIds.INVENTORY) this.inventoryOpen = false;
-                        this.removeWindow(this.windowIndex.get(containerClosePacket.windowId));
+                        this.closingWindowId = containerClosePacket.windowId;
+                        this.removeWindow(this.windowIndex.get(containerClosePacket.windowId), true);
+                        this.closingWindowId = Integer.MIN_VALUE;
                     }
                     if (containerClosePacket.windowId == -1) {
                         this.craftingType = CRAFTING_SMALL;
@@ -3682,7 +3719,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                         return;
                     }
 
-                    if (bookEditPacket.text.length() > 256) {
+                    if (bookEditPacket.text == null || bookEditPacket.text.length() > 256) {
                         return;
                     }
 
@@ -3887,6 +3924,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.sendPopup(message, "");
     }
 
+    // TODO: Support Translation Parameters
     public void sendPopup(String message, String subtitle) {
         TextPacket pk = new TextPacket();
         pk.type = TextPacket.TYPE_POPUP;
@@ -4001,7 +4039,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             if (notify && reason.length() > 0) {
                 DisconnectPacket pk = new DisconnectPacket();
                 pk.message = reason;
-                this.directDataPacket(pk);
+                this.dataPacket(pk);
             }
 
             this.connected = false;
@@ -4699,11 +4737,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         PlayStatusPacket pk = new PlayStatusPacket();
         pk.status = status;
 
-        if (immediate) {
-            this.directDataPacket(pk);
-        } else {
-            this.dataPacket(pk);
-        }
+        this.dataPacket(pk);
     }
 
     @Override
@@ -4996,8 +5030,13 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     }
 
     public void removeWindow(Inventory inventory) {
+        this.removeWindow(inventory, false);
+    }
+
+    @Since("1.3.2.0-PN")
+    protected void removeWindow(Inventory inventory, boolean isResponse) {
         inventory.close(this);
-        if (!this.permanentWindows.contains(this.getWindowId(inventory))) {
+        if (isResponse && !this.permanentWindows.contains(this.getWindowId(inventory))) {
             this.windows.remove(inventory);
             updateTrackingPositions(true);
         }
@@ -5086,6 +5125,11 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             }
             this.removeWindow(entry.getValue());
         }
+    }
+
+    @Since("1.3.2.0-PN")
+    public int getClosingWindowId() {
+        return this.closingWindowId;
     }
 
     @Override
@@ -5253,6 +5297,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     public void setSprinting(boolean value) {
         if (isSprinting() != value) {
             super.setSprinting(value);
+            this.setMovementSpeed(value ? getMovementSpeed() * 1.3f : getMovementSpeed() / 1.3f);
         }
     }
 
@@ -5310,7 +5355,22 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 }
                 entity.close();
                 return true;
-            } else if (entity instanceof EntityThrownTrident && ((EntityThrownTrident) entity).hadCollision) {
+            } else if (entity instanceof EntityThrownTrident) {
+                // Check Trident is returning to shooter
+                if (!((EntityThrownTrident) entity).hadCollision) {
+                    if (entity.isNoClip()) {
+                        if (!((EntityProjectile) entity).shootingEntity.equals(this)) {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+                
+                if (!((EntityThrownTrident) entity).isPlayer()) {
+                    return false;
+                }
+                
                 Item item = ((EntityThrownTrident) entity).getItem();
                 if (this.isSurvival() && !inventory.canAddItem(item)) {
                     return false;
@@ -5328,8 +5388,12 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 Server.broadcastPacket(entity.getViewers().values(), pk);
                 this.dataPacket(pk);
 
-                if (!this.isCreative()) {
-                    inventory.addItem(item.clone());
+                if (!((EntityThrownTrident) entity).isCreative()) {
+                    if (inventory.getItem(((EntityThrownTrident) entity).getFavoredSlot()).getId() == Item.AIR) {
+                        inventory.setItem(((EntityThrownTrident) entity).getFavoredSlot(), item.clone());
+                    } else {
+                        inventory.addItem(item.clone());
+                    }
                 }
                 entity.close();
                 return true;
@@ -5545,15 +5609,64 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         }
     }
 
-    @PowerNukkitOnly
-    @Since("1.4.0.0-PN")
+    @Since("1.3.2.0-PN")
     public int getTimeSinceRest() {
         return timeSinceRest;
     }
 
-    @PowerNukkitOnly
-    @Since("1.4.0.0-PN")
+    @Since("1.3.2.0-PN")
     public void setTimeSinceRest(int timeSinceRest) {
         this.timeSinceRest = timeSinceRest;
+    }
+
+    // TODO: Support Translation Parameters
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void sendPopupJukebox(String message) {
+        TextPacket pk = new TextPacket();
+        pk.type = TextPacket.TYPE_JUKEBOX_POPUP;
+        pk.message = message;
+        this.dataPacket(pk);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void sendSystem(String message) {
+        TextPacket pk = new TextPacket();
+        pk.type = TextPacket.TYPE_SYSTEM;
+        pk.message = message;
+        this.dataPacket(pk);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void sendWhisper(String message) {
+        this.sendWhisper("", message);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void sendWhisper(String source, String message) {
+        TextPacket pk = new TextPacket();
+        pk.type = TextPacket.TYPE_WHISPER;
+        pk.source = source;
+        pk.message = message;
+        this.dataPacket(pk);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void sendAnnouncement(String message) {
+        this.sendAnnouncement("", message);
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    public void sendAnnouncement(String source, String message) {
+        TextPacket pk = new TextPacket();
+        pk.type = TextPacket.TYPE_ANNOUNCEMENT;
+        pk.source = source;
+        pk.message = message;
+        this.dataPacket(pk);
     }
 }
