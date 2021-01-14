@@ -4,6 +4,8 @@ import cn.nukkit.Player;
 import cn.nukkit.api.PowerNukkitOnly;
 import cn.nukkit.api.Since;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockMobSpawner;
+import cn.nukkit.blockentity.BlockEntityMobSpawner;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -14,6 +16,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.network.protocol.AddEntityPacket;
 
 import java.util.Random;
 
@@ -45,6 +48,22 @@ public class ItemSpawnEgg extends Item {
 
     @Override
     public boolean onActivate(Level level, Player player, Block block, Block target, BlockFace face, double fx, double fy, double fz) {
+        if(target instanceof BlockMobSpawner) {
+            String legacyEntityId = AddEntityPacket.LEGACY_IDS.get(this.getDamage());
+            if(legacyEntityId != null) {
+                BlockEntityMobSpawner mobSpawner = ((BlockMobSpawner) target).getBlockEntity();
+                if(mobSpawner != null) {
+                    mobSpawner.setEntityIdentifier(legacyEntityId);
+                    if (player.isSurvival()) {
+                        player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
+                    }
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         FullChunk chunk = level.getChunk((int) block.getX() >> 4, (int) block.getZ() >> 4);
 
         if (chunk == null) {

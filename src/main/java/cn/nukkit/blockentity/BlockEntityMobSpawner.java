@@ -10,8 +10,6 @@ import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddEntityPacket;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +18,6 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-@Getter
 public class BlockEntityMobSpawner extends BlockEntitySpawnable {
 
     private short maxNearbyEntities;
@@ -29,12 +26,12 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
     private short spawnCount;
     private short spawnRange;
 
-    @Setter
     private short delay;
     private short minSpawnDelay;
     private short maxSpawnDelay;
 
     private String entityIdentifier;
+    private int entityNetworkId;
     private float displayEntityWidth;
     private float displayEntityHeight;
     private float displayEntityScale;
@@ -89,6 +86,8 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
             this.namedTag.putFloat("DisplayEntityScale", 1F);
         this.displayEntityScale = this.namedTag.getFloat("DisplayEntityScale");
 
+        this.entityNetworkId = AddEntityPacket.LEGACY_IDS.entrySet().stream().filter(entry -> entry.getValue().equals(this.entityIdentifier)).map(Map.Entry::getKey).findAny().orElse(-1);
+
         this.scheduleUpdate();
         super.initBlockEntity();
     }
@@ -113,9 +112,7 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
         Random random = ThreadLocalRandom.current();
         if(this.delay++ >= this.rand(random, this.minSpawnDelay, this.maxSpawnDelay)) {
             this.delay = 0;
-            int entityNetworkId = AddEntityPacket.LEGACY_IDS.entrySet().stream().
-                    filter(entry -> entry.getValue().equals(this.entityIdentifier)).map(Map.Entry::getKey).findAny().orElse(-1);
-            if(entityNetworkId == -1)
+            if(this.entityNetworkId == -1)
                 return true;
             AxisAlignedBB boundingBox = new SimpleAxisAlignedBB(
                     this.subtract(this.spawnRange, 1, this.spawnRange),
@@ -133,11 +130,11 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
                         collect(Collectors.toList());
                 if(this.level.getPlayers().values().stream().anyMatch(player -> player.distance(this) <= this.requiredPlayerRange) && entities.size() <= this.maxNearbyEntities) {
                     Position validPos = validBlocks.get(random.nextInt(validBlocks.size())).add(0.5, 0, 0.5);
-                    CreatureSpawnEvent ev = new CreatureSpawnEvent(entityNetworkId, validPos, new CompoundTag(), CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    CreatureSpawnEvent ev = new CreatureSpawnEvent(this.entityNetworkId, validPos, new CompoundTag(), CreatureSpawnEvent.SpawnReason.SPAWNER);
                     this.level.getServer().getPluginManager().callEvent(ev);
                     if(ev.isCancelled())
                         continue;
-                    Entity entity = Entity.createEntity(entityNetworkId, ev.getPosition());
+                    Entity entity = Entity.createEntity(this.entityNetworkId, ev.getPosition());
                     if(entity != null)
                         entity.spawnToAll();
                 }
@@ -150,10 +147,18 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
         return (short) (random.nextInt(max - min + 1) + min);
     }
 
+    public short getMaxNearbyEntities() {
+        return this.maxNearbyEntities;
+    }
+
     public void setMaxNearbyEntities(short maxNearbyEntities) {
         this.maxNearbyEntities = maxNearbyEntities;
         this.namedTag.putShort("MaxNearbyEntities", maxNearbyEntities);
         this.setDirty();
+    }
+
+    public short getRequiredPlayerRange() {
+        return this.requiredPlayerRange;
     }
 
     public void setRequiredPlayerRange(short requiredPlayerRange) {
@@ -162,10 +167,18 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
         this.setDirty();
     }
 
+    public short getSpawnCount() {
+        return this.spawnCount;
+    }
+
     public void setSpawnCount(short spawnCount) {
         this.spawnCount = spawnCount;
         this.namedTag.putShort("SpawnCount", spawnCount);
         this.setDirty();
+    }
+
+    public short getSpawnRange() {
+        return this.spawnRange;
     }
 
     public void setSpawnRange(short spawnRange) {
@@ -174,10 +187,28 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
         this.setDirty();
     }
 
+    public short getDelay() {
+        return this.delay;
+    }
+
+    public void setDelay(short delay) {
+        this.delay = delay;
+        this.namedTag.putShort("Delay", delay);
+        this.setDirty();
+    }
+
+    public short getMinSpawnDelay() {
+        return this.minSpawnDelay;
+    }
+
     public void setMinSpawnDelay(short minSpawnDelay) {
         this.minSpawnDelay = minSpawnDelay;
         this.namedTag.putShort("MinSpawnDelay", minSpawnDelay);
         this.setDirty();
+    }
+
+    public short getMaxSpawnDelay() {
+        return this.maxSpawnDelay;
     }
 
     public void setMaxSpawnDelay(short maxSpawnDelay) {
@@ -186,10 +217,19 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
         this.setDirty();
     }
 
+    public String getEntityIdentifier() {
+        return this.entityIdentifier;
+    }
+
     public void setEntityIdentifier(String entityIdentifier) {
         this.entityIdentifier = entityIdentifier;
+        this.entityNetworkId = AddEntityPacket.LEGACY_IDS.entrySet().stream().filter(entry -> entry.getValue().equals(this.entityIdentifier)).map(Map.Entry::getKey).findAny().orElse(-1);
         this.namedTag.putString("EntityIdentifier", entityIdentifier);
         this.setDirty();
+    }
+
+    public float getDisplayEntityWidth() {
+        return this.displayEntityWidth;
     }
 
     public void setDisplayEntityWidth(float displayEntityWidth) {
@@ -198,10 +238,18 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
         this.setDirty();
     }
 
+    public float getDisplayEntityHeight() {
+        return this.displayEntityHeight;
+    }
+
     public void setDisplayEntityHeight(float displayEntityHeight) {
         this.displayEntityHeight = displayEntityHeight;
         this.namedTag.putFloat("DisplayEntityHeight", displayEntityHeight);
         this.setDirty();
+    }
+
+    public float getDisplayEntityScale() {
+        return this.displayEntityScale;
     }
 
     public void setDisplayEntityScale(float displayEntityScale) {
