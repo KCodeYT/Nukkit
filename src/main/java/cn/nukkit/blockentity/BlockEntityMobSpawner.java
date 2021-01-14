@@ -110,8 +110,10 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
             return true;
 
         Random random = ThreadLocalRandom.current();
-        if(this.delay++ >= this.rand(random, this.minSpawnDelay, this.maxSpawnDelay)) {
-            this.delay = 0;
+        if(this.delay < 0)
+            this.setDelay(this.rand(random, this.minSpawnDelay, this.maxSpawnDelay));
+        if(this.delay-- < 0) {
+            this.delay = this.rand(random, this.minSpawnDelay, this.maxSpawnDelay);
             if(this.entityNetworkId == -1)
                 return true;
             AxisAlignedBB boundingBox = new SimpleAxisAlignedBB(
@@ -126,7 +128,7 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
             short spawnCount = this.rand(random, (short) 1, this.spawnCount);
             for(short spawnI = 0; spawnI < spawnCount; spawnI++) {
                 List<Entity> entities = Arrays.stream(this.level.getEntities()).
-                        filter(entity -> entity.distance(this) <= this.spawnRange).
+                        filter(entity -> entity.distance(this) <= this.requiredPlayerRange && entity.getNetworkId() == this.entityNetworkId).
                         collect(Collectors.toList());
                 if(this.level.getPlayers().values().stream().anyMatch(player -> player.distance(this) <= this.requiredPlayerRange) && entities.size() <= this.maxNearbyEntities) {
                     Position validPos = validBlocks.get(random.nextInt(validBlocks.size())).add(0.5, 0, 0.5);

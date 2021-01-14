@@ -9,6 +9,7 @@ import cn.nukkit.blockentity.BlockEntityMobSpawner;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
 import cn.nukkit.math.BlockFace;
+import cn.nukkit.math.NukkitRandom;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,6 +57,11 @@ public class BlockMobSpawner extends BlockSolid implements BlockEntityHolder<Blo
     @Override
     public Item[] getDrops(Item item) {
         return Item.EMPTY_ARRAY;
+    }
+
+    @Override
+    public int getDropExp() {
+        return new NukkitRandom().nextRange(15, 43);
     }
 
     @Override
