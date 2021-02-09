@@ -1,19 +1,31 @@
 package cn.nukkit.block;
 
 import cn.nukkit.Player;
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.projectile.EntityArrow;
+import cn.nukkit.entity.projectile.EntitySnowball;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Position;
 import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.math.BlockFace;
+import cn.nukkit.math.Vector3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class BlockChorusFlower extends BlockTransparent {
+public class BlockChorusFlower extends BlockTransparentMeta {
 
     public BlockChorusFlower() {
+        this(0);
+    }
+
+    public BlockChorusFlower(int meta) {
+        super(meta);
     }
 
     @Override
@@ -38,7 +50,7 @@ public class BlockChorusFlower extends BlockTransparent {
 
     @Override
     public int getToolType() {
-        return ItemTool.TYPE_NONE;
+        return ItemTool.TYPE_AXE;
     }
 
     private boolean isPositionValid() {
@@ -105,4 +117,17 @@ public class BlockChorusFlower extends BlockTransparent {
     public boolean sticksToPiston() {
         return false;
     }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    @Override
+    public boolean onProjectileHit(@Nonnull Entity projectile, @Nonnull Position position, @Nonnull Vector3 motion) {
+        if (projectile instanceof EntityArrow || projectile instanceof EntitySnowball) {
+            this.getLevel().useBreakOn(this);
+            projectile.kill();
+            return true;
+        }
+        return super.onProjectileHit(projectile, position, motion);
+    }
+
 }

@@ -1,11 +1,14 @@
 package cn.nukkit.level.biome;
 
+import cn.nukkit.api.PowerNukkitOnly;
+import cn.nukkit.api.Since;
 import cn.nukkit.level.biome.impl.HellBiome;
 import cn.nukkit.level.biome.impl.beach.BeachBiome;
 import cn.nukkit.level.biome.impl.beach.ColdBeachBiome;
 import cn.nukkit.level.biome.impl.desert.DesertBiome;
 import cn.nukkit.level.biome.impl.desert.DesertHillsBiome;
 import cn.nukkit.level.biome.impl.desert.DesertMBiome;
+import cn.nukkit.level.biome.impl.end.TheEndBiome;
 import cn.nukkit.level.biome.impl.extremehills.*;
 import cn.nukkit.level.biome.impl.forest.FlowerForestBiome;
 import cn.nukkit.level.biome.impl.forest.ForestBiome;
@@ -41,19 +44,20 @@ import cn.nukkit.level.biome.impl.taiga.*;
  * </p>
  */
 public enum EnumBiome {
-    OCEAN(0, new OceanBiome()),//
+    OCEAN(0, new OceanBiome()),
     PLAINS(1, new PlainsBiome()),
     DESERT(2, new DesertBiome()),
     EXTREME_HILLS(3, new ExtremeHillsBiome()),
     FOREST(4, new ForestBiome()),
     TAIGA(5, new TaigaBiome()),
     SWAMP(6, new SwampBiome()),
-    RIVER(7, new RiverBiome()),//
+    RIVER(7, new RiverBiome()),
     HELL(8, new HellBiome()),
+    @PowerNukkitOnly @Since("1.4.0.0-PN") THE_END(9, new TheEndBiome()),
     FROZEN_OCEAN(10, new FrozenOceanBiome()), //DOES NOT GENERATE NATUALLY
     FROZEN_RIVER(11, new FrozenRiverBiome()),
     ICE_PLAINS(12, new IcePlainsBiome()),
-    MUSHROOM_ISLAND(14, new MushroomIslandBiome()),//
+    MUSHROOM_ISLAND(14, new MushroomIslandBiome()),
     MUSHROOM_ISLAND_SHORE(15, new MushroomIslandShoreBiome()),
     BEACH(16, new BeachBiome()),
     DESERT_HILLS(17, new DesertHillsBiome()),

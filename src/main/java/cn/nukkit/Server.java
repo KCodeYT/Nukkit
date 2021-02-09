@@ -2608,6 +2608,8 @@ public class Server {
         BlockEntity.registerBlockEntity(BlockEntity.LODESTONE, BlockEntityLodestone.class);
         BlockEntity.registerBlockEntity(BlockEntity.TARGET, BlockEntityTarget.class);
         BlockEntity.registerBlockEntity(BlockEntity.MOB_SPAWNER, BlockEntityMobSpawner.class);
+        BlockEntity.registerBlockEntity(BlockEntity.END_PORTAL, BlockEntityEndPortal.class);
+        BlockEntity.registerBlockEntity(BlockEntity.END_GATEWAY, BlockEntityEndGateway.class);
     }
 
     public boolean isNetherAllowed() {

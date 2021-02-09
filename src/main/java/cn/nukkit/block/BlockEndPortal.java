@@ -1,13 +1,20 @@
 package cn.nukkit.block;
 
+import cn.nukkit.Player;
 import cn.nukkit.api.PowerNukkitOnly;
 import cn.nukkit.api.Since;
+import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.blockentity.BlockEntityEndPortal;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.BlockFace;
 import cn.nukkit.utils.BlockColor;
 
-public class BlockEndPortal extends BlockFlowable {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public class BlockEndPortal extends BlockFlowable implements BlockEntityHolder<BlockEntityEndPortal> {
 
     public BlockEndPortal() {
         this(0);
@@ -25,6 +32,27 @@ public class BlockEndPortal extends BlockFlowable {
     @Override
     public int getId() {
         return END_PORTAL;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    @Nonnull
+    @Override
+    public Class<? extends BlockEntityEndPortal> getBlockEntityClass() {
+        return BlockEntityEndPortal.class;
+    }
+
+    @PowerNukkitOnly
+    @Since("1.4.0.0-PN")
+    @Nonnull
+    @Override
+    public String getBlockEntityType() {
+        return BlockEntity.END_PORTAL;
+    }
+
+    @Override
+    public boolean place(@Nonnull Item item, @Nonnull Block block, @Nonnull Block target, @Nonnull BlockFace face, double fx, double fy, double fz, @Nullable Player player) {
+        return BlockEntityHolder.setBlockAndCreateEntity(this) != null;
     }
 
     @Override
