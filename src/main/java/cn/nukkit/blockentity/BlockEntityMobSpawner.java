@@ -42,47 +42,47 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
 
     @Override
     protected void initBlockEntity() {
-        if(!this.namedTag.containsShort("MaxNearbyEntities"))
+        if (!this.namedTag.containsShort("MaxNearbyEntities"))
             this.namedTag.putShort("MaxNearbyEntities", 6);
         this.maxNearbyEntities = (short) this.namedTag.getShort("MaxNearbyEntities");
 
-        if(!this.namedTag.containsShort("RequiredPlayerRange"))
+        if (!this.namedTag.containsShort("RequiredPlayerRange"))
             this.namedTag.putShort("RequiredPlayerRange", 16);
         this.requiredPlayerRange = (short) this.namedTag.getShort("RequiredPlayerRange");
 
-        if(!this.namedTag.containsShort("SpawnCount"))
+        if (!this.namedTag.containsShort("SpawnCount"))
             this.namedTag.putShort("SpawnCount", 4);
         this.spawnCount = (short) this.namedTag.getShort("SpawnCount");
 
-        if(!this.namedTag.containsShort("SpawnRange"))
+        if (!this.namedTag.containsShort("SpawnRange"))
             this.namedTag.putShort("SpawnRange", 4);
         this.spawnRange = (short) this.namedTag.getShort("SpawnRange");
 
-        if(!this.namedTag.containsShort("Delay"))
+        if (!this.namedTag.containsShort("Delay"))
             this.namedTag.putShort("Delay", 4);
         this.delay = (short) this.namedTag.getShort("Delay");
 
-        if(!this.namedTag.containsShort("MinSpawnDelay"))
+        if (!this.namedTag.containsShort("MinSpawnDelay"))
             this.namedTag.putShort("MinSpawnDelay", 200);
         this.minSpawnDelay = (short) this.namedTag.getShort("MinSpawnDelay");
 
-        if(!this.namedTag.containsShort("MaxSpawnDelay"))
+        if (!this.namedTag.containsShort("MaxSpawnDelay"))
             this.namedTag.putShort("MaxSpawnDelay", 800);
         this.maxSpawnDelay = (short) this.namedTag.getShort("MaxSpawnDelay");
 
-        if(!this.namedTag.containsString("EntityIdentifier"))
+        if (!this.namedTag.containsString("EntityIdentifier"))
             this.namedTag.putString("EntityIdentifier", "");
         this.entityIdentifier = this.namedTag.getString("EntityIdentifier");
 
-        if(!this.namedTag.containsFloat("DisplayEntityWidth"))
+        if (!this.namedTag.containsFloat("DisplayEntityWidth"))
             this.namedTag.putFloat("DisplayEntityWidth", 1F);
         this.displayEntityWidth = this.namedTag.getFloat("DisplayEntityWidth");
 
-        if(!this.namedTag.containsFloat("DisplayEntityHeight"))
+        if (!this.namedTag.containsFloat("DisplayEntityHeight"))
             this.namedTag.putFloat("DisplayEntityHeight", 1F);
         this.displayEntityHeight = this.namedTag.getFloat("DisplayEntityHeight");
 
-        if(!this.namedTag.containsFloat("DisplayEntityScale"))
+        if (!this.namedTag.containsFloat("DisplayEntityScale"))
             this.namedTag.putFloat("DisplayEntityScale", 1F);
         this.displayEntityScale = this.namedTag.getFloat("DisplayEntityScale");
 
@@ -104,17 +104,17 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
 
     @Override
     public boolean onUpdate() {
-        if(this.closed)
+        if (this.closed)
             return false;
-        if(!this.level.getServer().getPropertyBoolean("spawn-mobs"))
+        if (!this.level.getServer().getPropertyBoolean("spawn-mobs"))
             return true;
 
         Random random = ThreadLocalRandom.current();
-        if(this.delay < 0)
+        if (this.delay < 0)
             this.setDelay(this.rand(random, this.minSpawnDelay, this.maxSpawnDelay));
-        if(this.delay-- < 0) {
+        if (this.delay-- < 0) {
             this.delay = this.rand(random, this.minSpawnDelay, this.maxSpawnDelay);
-            if(this.entityNetworkId == -1)
+            if (this.entityNetworkId == -1)
                 return true;
             AxisAlignedBB boundingBox = new SimpleAxisAlignedBB(
                     this.subtract(this.spawnRange, 1, this.spawnRange),
@@ -123,21 +123,21 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
             List<Block> validBlocks = this.level.scanBlocks(boundingBox, (pos, state) ->
                     this.level.getBlock(pos.asVector3()).canPassThrough() &&
                             this.level.getBlock(pos.add(0, 1).asVector3()).canPassThrough());
-            if(validBlocks.isEmpty())
+            if (validBlocks.isEmpty())
                 return true;
             short spawnCount = this.rand(random, (short) 1, this.spawnCount);
-            for(short spawnI = 0; spawnI < spawnCount; spawnI++) {
+            for (short spawnI = 0; spawnI < spawnCount; spawnI++) {
                 List<Entity> entities = Arrays.stream(this.level.getEntities()).
                         filter(entity -> entity.distance(this) <= this.requiredPlayerRange && entity.getNetworkId() == this.entityNetworkId).
                         collect(Collectors.toList());
-                if(this.level.getPlayers().values().stream().anyMatch(player -> player.distance(this) <= this.requiredPlayerRange) && entities.size() <= this.maxNearbyEntities) {
+                if (this.level.getPlayers().values().stream().anyMatch(player -> player.distance(this) <= this.requiredPlayerRange) && entities.size() <= this.maxNearbyEntities) {
                     Position validPos = validBlocks.get(random.nextInt(validBlocks.size())).add(0.5, 0, 0.5);
                     CreatureSpawnEvent ev = new CreatureSpawnEvent(this.entityNetworkId, validPos, new CompoundTag(), CreatureSpawnEvent.SpawnReason.SPAWNER);
                     this.level.getServer().getPluginManager().callEvent(ev);
-                    if(ev.isCancelled())
+                    if (ev.isCancelled())
                         continue;
                     Entity entity = Entity.createEntity(this.entityNetworkId, ev.getPosition());
-                    if(entity != null)
+                    if (entity != null)
                         entity.spawnToAll();
                 }
             }

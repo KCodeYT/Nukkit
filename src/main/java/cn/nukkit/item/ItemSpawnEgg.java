@@ -24,7 +24,7 @@ import java.util.Random;
  * @author MagicDroidX (Nukkit Project)
  */
 public class ItemSpawnEgg extends Item {
-    
+
     public ItemSpawnEgg() {
         this(0, 1);
     }
@@ -48,11 +48,15 @@ public class ItemSpawnEgg extends Item {
 
     @Override
     public boolean onActivate(Level level, Player player, Block block, Block target, BlockFace face, double fx, double fy, double fz) {
-        if(target instanceof BlockMobSpawner) {
+        if (player.isAdventure()) {
+            return false;
+        }
+
+        if (target instanceof BlockMobSpawner) {
             String legacyEntityId = AddEntityPacket.LEGACY_IDS.get(this.getDamage());
-            if(legacyEntityId != null) {
+            if (legacyEntityId != null) {
                 BlockEntityMobSpawner mobSpawner = ((BlockMobSpawner) target).getBlockEntity();
-                if(mobSpawner != null) {
+                if (mobSpawner != null) {
                     mobSpawner.setEntityIdentifier(legacyEntityId);
                     if (player.isSurvival()) {
                         player.getInventory().decreaseCount(player.getInventory().getHeldItemIndex());
