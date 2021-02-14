@@ -217,7 +217,7 @@ public class RakNetInterface implements RakNetServerListener, AdvancedSourceInte
 
         if (session != null) {
             packet.tryEncode();
-            session.outbound.offer(packet);
+            session.outbound.offer(packet.clone());
         }
 
         return null;
