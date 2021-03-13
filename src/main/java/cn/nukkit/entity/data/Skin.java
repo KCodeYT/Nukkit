@@ -32,6 +32,7 @@ public class Skin {
 
     private final String fullSkinId = UUID.randomUUID().toString();
     private String skinId;
+    private String playFabId = "";
     private String skinResourcePatch = GEOMETRY_CUSTOM;
     private SerializedImage skinData;
     private final List<SkinAnimation> animations = new ArrayList<>();
@@ -69,6 +70,14 @@ public class Skin {
         } catch (ClassCastException | NullPointerException e) {
             return false;
         }
+    }
+
+    public String getPlayFabId() {
+        return playFabId;
+    }
+
+    public void setPlayFabId(String playFabId) {
+        this.playFabId = playFabId;
     }
 
     public SerializedImage getSkinData() {
