@@ -136,124 +136,124 @@ public abstract class Entity extends Location implements Metadatable {
     public static final int DATA_RIDER_MAX_ROTATION = 58; //float
     public static final int DATA_RIDER_MIN_ROTATION = 59; //float
     public static final int DATA_RIDER_ROTATION_OFFSET = 60; //float
-    public static final int DATA_AREA_EFFECT_CLOUD_RADIUS = 60; //float
-    public static final int DATA_AREA_EFFECT_CLOUD_WAITING = 61; //int
-    public static final int DATA_AREA_EFFECT_CLOUD_PARTICLE_ID = 62; //int
-    @Since("1.2.0.0-PN") public static final int DATA_SHULKER_PEEK_ID = 63; //int
-    public static final int DATA_SHULKER_ATTACH_FACE = 64; //byte
-    @Since("1.2.0.0-PN") public static final int DATA_SHULKER_ATTACHED = 65; //short
-    public static final int DATA_SHULKER_ATTACH_POS = 66; //block coords
-    public static final int DATA_TRADING_PLAYER_EID = 67; //long
-    @Since("1.2.0.0-PN") public static final int DATA_TRADING_CAREER = 68;
-    @Since("1.2.0.0-PN") public static final int DATA_HAS_COMMAND_BLOCK = 69; //byte
+    public static final int DATA_AREA_EFFECT_CLOUD_RADIUS = 61; //float
+    public static final int DATA_AREA_EFFECT_CLOUD_WAITING = 62; //int
+    public static final int DATA_AREA_EFFECT_CLOUD_PARTICLE_ID = 63; //int
+    @Since("1.2.0.0-PN") public static final int DATA_SHULKER_PEEK_ID = 64; //int
+    public static final int DATA_SHULKER_ATTACH_FACE = 65; //byte
+    @Since("1.2.0.0-PN") public static final int DATA_SHULKER_ATTACHED = 66; //short
+    public static final int DATA_SHULKER_ATTACH_POS = 67; //block coords
+    public static final int DATA_TRADING_PLAYER_EID = 68; //long
+    @Since("1.2.0.0-PN") public static final int DATA_TRADING_CAREER = 69;
+    @Since("1.2.0.0-PN") public static final int DATA_HAS_COMMAND_BLOCK = 70; //byte
     
     @PowerNukkitOnly
     @Deprecated @DeprecationDetails(reason = "NukkitX added this constant with a different name",
             replaceWith = "DATA_HAS_COMMAND_BLOCK", since = "1.3.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_COMMAND_BLOCK_ENABLED = 69; //byte
+    public static final int DATA_COMMAND_BLOCK_ENABLED = 70; //byte
     
-    @Since("1.2.0.0-PN") public static final int DATA_COMMAND_BLOCK_COMMAND = 70; //string
-    public static final int DATA_COMMAND_BLOCK_LAST_OUTPUT = 71; //string
-    public static final int DATA_COMMAND_BLOCK_TRACK_OUTPUT = 72; //byte
-    public static final int DATA_CONTROLLING_RIDER_SEAT_NUMBER = 73; //byte
-    public static final int DATA_STRENGTH = 74; //int
-    public static final int DATA_MAX_STRENGTH = 75; //int
-    @Since("1.2.0.0-PN") public static final int DATA_SPELL_CASTING_COLOR = 76; //int
+    @Since("1.2.0.0-PN") public static final int DATA_COMMAND_BLOCK_COMMAND = 71; //string
+    public static final int DATA_COMMAND_BLOCK_LAST_OUTPUT = 72; //string
+    public static final int DATA_COMMAND_BLOCK_TRACK_OUTPUT = 73; //byte
+    public static final int DATA_CONTROLLING_RIDER_SEAT_NUMBER = 74; //byte
+    public static final int DATA_STRENGTH = 75; //int
+    public static final int DATA_MAX_STRENGTH = 76; //int
+    @Since("1.2.0.0-PN") public static final int DATA_SPELL_CASTING_COLOR = 77; //int
     
     @PowerNukkitOnly("Backward compatibility")
     @Deprecated @DeprecationDetails(reason = "NukkitX added this constant with a different name",
             replaceWith = "DATA_SPELL_CASTING_COLOR", since = "1.3.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_EVOKER_SPELL_COLOR = 76; // int
+    public static final int DATA_EVOKER_SPELL_COLOR = 77; // int
     
-    public static final int DATA_LIMITED_LIFE = 77; // int
-    public static final int DATA_ARMOR_STAND_POSE_INDEX = 78; // int
-    public static final int DATA_ENDER_CRYSTAL_TIME_OFFSET = 79; // int
+    public static final int DATA_LIMITED_LIFE = 78; // int
+    public static final int DATA_ARMOR_STAND_POSE_INDEX = 79; // int
+    public static final int DATA_ENDER_CRYSTAL_TIME_OFFSET = 80; // int
     public static final int DATA_ALWAYS_SHOW_NAMETAG = 81; // byte
-    public static final int DATA_COLOR_2 = 81; // byte
-    @Since("1.2.0.0-PN") public static final int DATA_NAME_AUTHOR = 82;
+    public static final int DATA_COLOR_2 = 82; // byte
+    @Since("1.2.0.0-PN") public static final int DATA_NAME_AUTHOR = 83;
     public static final int DATA_SCORE_TAG = 84; //String
-    public static final int DATA_BALLOON_ATTACHED_ENTITY = 84; // long
-    public static final int DATA_PUFFERFISH_SIZE = 85;
-    @Since("1.2.0.0-PN") public static final int DATA_BUBBLE_TIME = 86;
+    public static final int DATA_BALLOON_ATTACHED_ENTITY = 85; // long
+    public static final int DATA_PUFFERFISH_SIZE = 86;
+    @Since("1.2.0.0-PN") public static final int DATA_BUBBLE_TIME = 87;
     
     @PowerNukkitOnly
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_BUBBLE_TIME", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_BOAT_BUBBLE_TIME = 86;
+    public static final int DATA_BOAT_BUBBLE_TIME = 87;
     
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_AGENT", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_AGENT_ID = 87;
+    public static final int DATA_AGENT_ID = 88;
     
-    @Since("1.2.0.0-PN") public static final int DATA_AGENT = 87;
-    @Since("1.2.0.0-PN") public static final int DATA_SITTING_AMOUNT = 88;
-    @Since("1.2.0.0-PN") public static final int DATA_SITTING_AMOUNT_PREVIOUS = 89;
-    @Since("1.2.0.0-PN") public static final int DATA_EATING_COUNTER = 90;
-    public static final int DATA_FLAGS_EXTENDED = 91;
-    @Since("1.2.0.0-PN") public static final int DATA_LAYING_AMOUNT = 92;
-    @Since("1.2.0.0-PN") public static final int DATA_LAYING_AMOUNT_PREVIOUS = 93;
+    @Since("1.2.0.0-PN") public static final int DATA_AGENT = 88;
+    @Since("1.2.0.0-PN") public static final int DATA_SITTING_AMOUNT = 89;
+    @Since("1.2.0.0-PN") public static final int DATA_SITTING_AMOUNT_PREVIOUS = 90;
+    @Since("1.2.0.0-PN") public static final int DATA_EATING_COUNTER = 91;
+    public static final int DATA_FLAGS_EXTENDED = 92;
+    @Since("1.2.0.0-PN") public static final int DATA_LAYING_AMOUNT = 93;
+    @Since("1.2.0.0-PN") public static final int DATA_LAYING_AMOUNT_PREVIOUS = 94;
 
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_DURATION", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_AREA_EFFECT_CLOUD_DURATION = 94; // int
+    public static final int DATA_AREA_EFFECT_CLOUD_DURATION = 95; // int
     
-    @Since("1.2.0.0-PN") public static final int DATA_DURATION = 94;
+    @Since("1.2.0.0-PN") public static final int DATA_DURATION = 95;
 
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_SPAWN_TIME", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_AREA_EFFECT_CLOUD_SPAWN_TIME = 95; // long
+    public static final int DATA_AREA_EFFECT_CLOUD_SPAWN_TIME = 96; // long
     
-    @Since("1.2.0.0-PN") public static final int DATA_SPAWN_TIME = 95;
+    @Since("1.2.0.0-PN") public static final int DATA_SPAWN_TIME = 96;
 
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_CHANGE_RATE", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_AREA_EFFECT_CLOUD_RADIUS_PER_TICK = 96; // float
+    public static final int DATA_AREA_EFFECT_CLOUD_RADIUS_PER_TICK = 97; // float
     
-    @Since("1.2.0.0-PN") public static final int DATA_CHANGE_RATE = 96;
+    @Since("1.2.0.0-PN") public static final int DATA_CHANGE_RATE = 97;
 
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_CHANGE_ON_PICK", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_AREA_EFFECT_CLOUD_RADIUS_CHANGE_ON_PICKUP = 97; // float
+    public static final int DATA_AREA_EFFECT_CLOUD_RADIUS_CHANGE_ON_PICKUP = 98; // float
     
-    @Since("1.2.0.0-PN") public static final int DATA_CHANGE_ON_PICKUP = 97;
+    @Since("1.2.0.0-PN") public static final int DATA_CHANGE_ON_PICKUP = 98;
 
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_PICKUP_COUNT", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_AREA_EFFECT_CLOUD_PICKUP_COUNT = 98; // int
+    public static final int DATA_AREA_EFFECT_CLOUD_PICKUP_COUNT = 99; // int
     
-    @Since("1.2.0.0-PN") public static final int DATA_PICKUP_COUNT = 98;
+    @Since("1.2.0.0-PN") public static final int DATA_PICKUP_COUNT = 99;
 
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_INTERACT_TEXT", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_INTERACTIVE_TAG = 99; // string (button text)
+    public static final int DATA_INTERACTIVE_TAG = 100; // string (button text)
     
-    @Since("1.2.0.0-PN") public static final int DATA_INTERACT_TEXT = 99;
-    public static final int DATA_TRADE_TIER = 100; // int
-    public static final int DATA_MAX_TRADE_TIER = 101; // int
+    @Since("1.2.0.0-PN") public static final int DATA_INTERACT_TEXT = 100;
+    public static final int DATA_TRADE_TIER = 101; // int
+    public static final int DATA_MAX_TRADE_TIER = 102; // int
 
     @Deprecated @DeprecationDetails(reason = "NukkitX maps this constant with a different name",
             replaceWith = "DATA_TRADE_EXPERIENCE", since = "1.2.0.0-PN", toBeRemovedAt = "1.4.0.0-PN")
-    public static final int DATA_TRADE_XP = 102; // int
+    public static final int DATA_TRADE_XP = 103; // int
     
-    @Since("1.2.0.0-PN") public static final int DATA_TRADE_EXPERIENCE = 102;
-    @Since("1.1.1.0-PN") public static final int DATA_SKIN_ID = 103; // int
-    @Since("1.2.0.0-PN") public static final int DATA_SPAWNING_FRAMES = 104;
-    @Since("1.2.0.0-PN") public static final int DATA_COMMAND_BLOCK_TICK_DELAY = 105;
-    @Since("1.2.0.0-PN") public static final int DATA_COMMAND_BLOCK_EXECUTE_ON_FIRST_TICK = 106;
-    @Since("1.2.0.0-PN") public static final int DATA_AMBIENT_SOUND_INTERVAL = 107;
-    @Since("1.3.0.0-PN") public static final int DATA_AMBIENT_SOUND_INTERVAL_RANGE = 108;
-    @Since("1.2.0.0-PN") public static final int DATA_AMBIENT_SOUND_EVENT_NAME = 109;
-    @Since("1.2.0.0-PN") public static final int DATA_FALL_DAMAGE_MULTIPLIER = 110;
-    @Since("1.2.0.0-PN") public static final int DATA_NAME_RAW_TEXT = 111;
-    @Since("1.2.0.0-PN") public static final int DATA_CAN_RIDE_TARGET = 112;
-    @Since("1.3.0.0-PN") public static final int DATA_LOW_TIER_CURED_DISCOUNT = 113;
-    @Since("1.3.0.0-PN") public static final int DATA_HIGH_TIER_CURED_DISCOUNT = 114;
-    @Since("1.3.0.0-PN") public static final int DATA_NEARBY_CURED_DISCOUNT = 115;
-    @Since("1.3.0.0-PN") public static final int DATA_NEARBY_CURED_DISCOUNT_TIMESTAMP = 116;
-    @Since("1.3.0.0-PN") public static final int DATA_HITBOX = 117;
-    @Since("1.3.0.0-PN") public static final int DATA_IS_BUOYANT = 118;
-    @Since("1.3.0.0-PN") public static final int DATA_BUOYANCY_DATA = 119;
+    @Since("1.2.0.0-PN") public static final int DATA_TRADE_EXPERIENCE = 103;
+    @Since("1.1.1.0-PN") public static final int DATA_SKIN_ID = 104; // int
+    @Since("1.2.0.0-PN") public static final int DATA_SPAWNING_FRAMES = 105;
+    @Since("1.2.0.0-PN") public static final int DATA_COMMAND_BLOCK_TICK_DELAY = 106;
+    @Since("1.2.0.0-PN") public static final int DATA_COMMAND_BLOCK_EXECUTE_ON_FIRST_TICK = 107;
+    @Since("1.2.0.0-PN") public static final int DATA_AMBIENT_SOUND_INTERVAL = 108;
+    @Since("1.3.0.0-PN") public static final int DATA_AMBIENT_SOUND_INTERVAL_RANGE = 109;
+    @Since("1.2.0.0-PN") public static final int DATA_AMBIENT_SOUND_EVENT_NAME = 110;
+    @Since("1.2.0.0-PN") public static final int DATA_FALL_DAMAGE_MULTIPLIER = 111;
+    @Since("1.2.0.0-PN") public static final int DATA_NAME_RAW_TEXT = 112;
+    @Since("1.2.0.0-PN") public static final int DATA_CAN_RIDE_TARGET = 113;
+    @Since("1.3.0.0-PN") public static final int DATA_LOW_TIER_CURED_DISCOUNT = 114;
+    @Since("1.3.0.0-PN") public static final int DATA_HIGH_TIER_CURED_DISCOUNT = 115;
+    @Since("1.3.0.0-PN") public static final int DATA_NEARBY_CURED_DISCOUNT = 116;
+    @Since("1.3.0.0-PN") public static final int DATA_NEARBY_CURED_DISCOUNT_TIMESTAMP = 117;
+    @Since("1.3.0.0-PN") public static final int DATA_HITBOX = 118;
+    @Since("1.3.0.0-PN") public static final int DATA_IS_BUOYANT = 119;
     public static final int DATA_FREEZING_EFFECT_STRENGTH = 120;
+    @Since("1.3.0.0-PN") public static final int DATA_BUOYANCY_DATA = 121;
     public static final int DATA_GOAT_HORN_COUNT = 122;
 
     // Flags
