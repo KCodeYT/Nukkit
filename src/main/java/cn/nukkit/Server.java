@@ -1682,7 +1682,11 @@ public class Server {
     }
 
     public String getSubMotd() {
-        return this.getPropertyString("sub-motd", "https://nukkitx.com");
+        String subMotd = this.getPropertyString("sub-motd");
+        if (subMotd == null || subMotd.isEmpty()) {
+            subMotd = "https://nukkitx.net";
+        }
+        return subMotd;
     }
 
     public boolean getForceResources() {
