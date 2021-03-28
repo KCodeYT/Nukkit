@@ -108,9 +108,11 @@ public class EntityHuman extends EntityHumanType {
                 if (skinTag.contains("ModelId")) {
                     newSkin.setSkinId(skinTag.getString("ModelId"));
                 }
-                if (skinTag.contains("PlayFabId")) {
-                    newSkin.setSkinId(skinTag.getString("PlayFabId"));
+
+                if (skinTag.contains("PlayFabID")) {
+                    newSkin.setPlayFabId(skinTag.getString("PlayFabID"));
                 }
+
                 if (skinTag.contains("Data")) {
                     byte[] data = skinTag.getByteArray("Data");
                     if (skinTag.contains("SkinImageWidth") && skinTag.contains("SkinImageHeight")) {
@@ -272,8 +274,8 @@ public class EntityHuman extends EntityHumanType {
                             .putList(colors));
                 }
             }
-            if (this.getSkin().getPlayFabId() != null && !this.getSkin().getPlayFabId().isEmpty()){
-                skinTag.putString("PlayFabId",this.getSkin().getPlayFabId());
+            if (!this.getSkin().getPlayFabId().isEmpty()) {
+                skinTag.putString("PlayFabID", this.getSkin().getPlayFabId());
             }
             this.namedTag.putCompound("Skin", skinTag);
         }

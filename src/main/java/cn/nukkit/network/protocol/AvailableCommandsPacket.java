@@ -1,5 +1,6 @@
 package cn.nukkit.network.protocol;
 
+import cn.nukkit.api.PowerNukkitDifference;
 import cn.nukkit.command.data.*;
 import cn.nukkit.utils.BinaryStream;
 import lombok.ToString;
@@ -7,9 +8,12 @@ import lombok.ToString;
 import java.util.*;
 import java.util.function.ObjIntConsumer;
 
+import static cn.nukkit.utils.Utils.dynamic;
+
 /**
  * @author MagicDroidX (Nukkit Project)
  */
+@PowerNukkitDifference(since = "1.4.0.0-PN", info = "Made the arg type constants dynamic because they can change in Minecraft updates")
 @ToString
 public class AvailableCommandsPacket extends DataPacket {
 

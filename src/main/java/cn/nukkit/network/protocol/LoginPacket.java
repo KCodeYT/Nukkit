@@ -85,8 +85,8 @@ public class LoginPacket extends DataPacket {
         if (skinToken.has("SkinId")) {
             skin.setSkinId(skinToken.get("SkinId").getAsString());
         }
-        if (skinToken.has("PlayFabId")) {
-            skin.setPlayFabId(skinToken.get("PlayFabId").getAsString());
+        if (skinToken.has("PlayFabID")) {
+            skin.setPlayFabId(skinToken.get("PlayFabID").getAsString());
         }
         if (skinToken.has("CapeId")) {
             skin.setCapeId(skinToken.get("CapeId").getAsString());

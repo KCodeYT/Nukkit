@@ -153,7 +153,10 @@ public class BlockLava extends BlockLiquid {
 
     @Override
     public int tickRate() {
-        return this.level.getDimension() == Level.DIMENSION_NETHER ? 5 : 30;
+        if (this.level.getDimension() == Level.DIMENSION_NETHER) {
+            return 10;
+        }
+        return 30;
     }
 
     @Override

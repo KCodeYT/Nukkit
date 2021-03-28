@@ -1678,14 +1678,13 @@ public class Server {
     }
 
     public String getMotd() {
-        return this.getPropertyString("motd", "A Nukkit Powered Server");
+        return this.getPropertyString("motd", "PowerNukkit Server");
     }
 
     public String getSubMotd() {
-        String subMotd = this.getPropertyString("sub-motd");
-        if (subMotd == null || subMotd.isEmpty()) {
-            subMotd = "https://nukkitx.net";
-        }
+        String subMotd = this.getPropertyString("sub-motd", "https://powernukkit.org");
+        if (subMotd.isEmpty())
+            subMotd = "https://powernukkit.org";
         return subMotd;
     }
 

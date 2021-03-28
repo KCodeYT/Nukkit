@@ -1,5 +1,6 @@
 package cn.nukkit.network.protocol;
 
+import cn.nukkit.api.Since;
 import cn.nukkit.inventory.*;
 import cn.nukkit.item.Item;
 import lombok.ToString;
@@ -41,7 +42,7 @@ public class CraftingDataPacket extends DataPacket {
     public void addShapedRecipe(ShapedRecipe... recipe) {
         Collections.addAll(entries, recipe);
     }
-    
+
     public void addCartographyRecipe(CartographyRecipe... recipe) {
         Stream.of(recipe).filter(r -> r.getRecipeId() != null).forEachOrdered(r -> entries.add(r));
     }
@@ -59,6 +60,11 @@ public class CraftingDataPacket extends DataPacket {
     }
 
     public void addCampfireRecipeRecipe(CampfireRecipe... recipe) {
+        Collections.addAll(entries, recipe);
+    }
+
+    @Since("1.4.0.0-PN")
+    public void addMultiRecipe(MultiRecipe... recipe) {
         Collections.addAll(entries, recipe);
     }
 
@@ -87,6 +93,7 @@ public class CraftingDataPacket extends DataPacket {
         this.putUnsignedVarInt(entries.size());
 
         int recipeNetworkId = 1;
+
         for (Recipe recipe : entries) {
             this.putVarInt(recipe.getType().networkType);
             switch (recipe.getType()) {
@@ -175,24 +182,28 @@ public class CraftingDataPacket extends DataPacket {
                             break;
                     }
                     break;
+                case MULTI:
+                    this.putUUID(((MultiRecipe) recipe).getId());
+                    this.putUnsignedVarInt(recipeNetworkId++);
+                    break;
             }
         }
 
         this.putUnsignedVarInt(this.brewingEntries.size());
         for (BrewingRecipe recipe : brewingEntries) {
-            this.putVarInt(recipe.getInput().getId());
+            this.putVarInt(recipe.getInput().getNetworkId());
             this.putVarInt(recipe.getInput().getDamage());
-            this.putVarInt(recipe.getIngredient().getId());
+            this.putVarInt(recipe.getIngredient().getNetworkId());
             this.putVarInt(recipe.getIngredient().getDamage());
-            this.putVarInt(recipe.getResult().getId());
+            this.putVarInt(recipe.getResult().getNetworkId());
             this.putVarInt(recipe.getResult().getDamage());
         }
 
         this.putUnsignedVarInt(this.containerEntries.size());
         for (ContainerRecipe recipe : containerEntries) {
-            this.putVarInt(recipe.getInput().getId());
-            this.putVarInt(recipe.getIngredient().getId());
-            this.putVarInt(recipe.getResult().getId());
+            this.putVarInt(recipe.getInput().getNetworkId());
+            this.putVarInt(recipe.getIngredient().getNetworkId());
+            this.putVarInt(recipe.getResult().getNetworkId());
         }
 
         this.putBoolean(cleanRecipes);
