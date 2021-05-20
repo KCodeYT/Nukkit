@@ -134,10 +134,10 @@ public class Item implements Cloneable, BlockID, ItemID {
         }
         this.count = count;
         this.name = name != null? name.intern() : null;
-        /*f (this.block != null && this.id <= 0xff && Block.list[id] != null) { //probably useless
-            this.block = Block.get(this.id, this.meta);
-            this.name = this.block.getName();
-        }*/
+        Block block;
+        if (id < 256 && (block = Block.get(id < 0? 255 - id : id, meta)) != null && !(this instanceof ItemBlock)) {
+            this.block = block;
+        }
     }
 
     public boolean hasMeta() {
