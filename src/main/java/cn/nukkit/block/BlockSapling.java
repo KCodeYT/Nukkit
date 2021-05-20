@@ -206,9 +206,11 @@ public class BlockSapling extends BlockFlowable {
                 }
 
                 generator = new NewJungleTree(4, 7);
+                vector3 = this.add(0,0,0);
                 break;
             case ACACIA:
                 generator = new ObjectSavannaTree();
+                vector3 = this.add(0,0,0);
                 break;
             case DARK_OAK:
                 if ((vector2 = this.findSaplings(WoodType.DARK_OAK)) != null) {
