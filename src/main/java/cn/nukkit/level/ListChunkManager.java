@@ -10,16 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Since("1.3.2.0-PN")
-@SuppressWarnings("deprecation")
+@Since("1.4.0.0-PN")
 public class ListChunkManager implements ChunkManager {
 
     private final Level level;
     private final List<Block> blocks;
 
-    @Since("1.3.2.0-PN")
-    public ListChunkManager(Level parent) {
-        this.level = parent;
+    public ListChunkManager(Level level) {
+        this.level = level;
         this.blocks = new ArrayList<>();
     }
     
@@ -128,7 +126,7 @@ public class ListChunkManager implements ChunkManager {
         return this.level.getSeed();
     }
 
-    @Since("1.3.2.0-PN")
+    @Since("1.4.0.0-PN")
     public List<Block> getBlocks() {
         return this.blocks;
     }

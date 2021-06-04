@@ -73,14 +73,6 @@ public class Skin {
         }
     }
 
-    public String getPlayFabId() {
-        return playFabId;
-    }
-
-    public void setPlayFabId(String playFabId) {
-        this.playFabId = playFabId;
-    }
-
     public SerializedImage getSkinData() {
         if (skinData == null) {
             return SerializedImage.EMPTY;
@@ -269,6 +261,23 @@ public class Skin {
 
     public String getFullSkinId() {
         return fullSkinId;
+    }
+
+    @Since("1.4.0.0-PN")
+    public void setPlayFabId(String playFabId) {
+        this.playFabId = playFabId;
+    }
+
+    @Since("1.4.0.0-PN")
+    public String getPlayFabId() {
+        if (this.persona && (this.playFabId == null || this.playFabId.isEmpty())) {
+            try {
+                this.playFabId = this.skinId.split("-")[5];
+            } catch (Exception e) {
+                this.playFabId = this.fullSkinId.replace("-", "").substring(16);
+            }
+        }
+        return this.playFabId;
     }
 
     private static SerializedImage parseBufferedImage(BufferedImage image) {
