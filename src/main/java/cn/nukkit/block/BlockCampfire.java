@@ -1,6 +1,7 @@
 package cn.nukkit.block;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.api.PowerNukkitOnly;
 import cn.nukkit.api.Since;
 import cn.nukkit.blockentity.BlockEntity;
@@ -8,7 +9,10 @@ import cn.nukkit.blockentity.BlockEntityCampfire;
 import cn.nukkit.blockproperty.BlockProperties;
 import cn.nukkit.blockproperty.BooleanBlockProperty;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityPotion;
 import cn.nukkit.entity.projectile.EntityArrow;
+import cn.nukkit.entity.projectile.EntityProjectile;
+import cn.nukkit.event.entity.EntityCombustByBlockEvent;
 import cn.nukkit.event.entity.EntityDamageByBlockEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.inventory.CampfireInventory;
@@ -25,6 +29,7 @@ import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.Tag;
+import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.BlockColor;
 import cn.nukkit.utils.Faceable;
 import lombok.extern.log4j.Log4j2;
@@ -32,7 +37,6 @@ import lombok.extern.log4j.Log4j2;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static cn.nukkit.blockproperty.CommonBlockProperties.DIRECTION;
 
@@ -113,7 +117,7 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
 
     @Override
     public Item[] getDrops(Item item) {
-        return new Item[] { new ItemCoal(0, 1 + ThreadLocalRandom.current().nextInt(1)) };
+        return new Item[] { MinecraftItemID.CHARCOAL.get(2) };
     }
 
     @Override
@@ -173,9 +177,32 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
 
     @Override
     public void onEntityCollide(Entity entity) {
-        if (!isExtinguished() && !entity.isSneaking()) {
-            entity.attack(new EntityDamageByBlockEvent(this, entity, EntityDamageEvent.DamageCause.FIRE, 1));
+        if (isExtinguished()) {
+            if (entity.isOnFire()) {
+                setExtinguished(false);
+                level.setBlock(this, this, true);
+            }
+            return;
         }
+
+        if(entity.hasEffect(Effect.FIRE_RESISTANCE)
+            || entity instanceof EntityProjectile
+            || !entity.attack(getDamageEvent(entity))
+            || !entity.isAlive()) {
+            return;
+        }
+        
+        EntityCombustByBlockEvent ev = new EntityCombustByBlockEvent(this, entity, 8);
+        Server.getInstance().getPluginManager().callEvent(ev);
+        if (!ev.isCancelled() && entity.isAlive()) {
+            entity.setOnFire(ev.getDuration());
+        }
+    }
+    
+    @PowerNukkitOnly
+    @Since("FUTURE")
+    protected EntityDamageEvent getDamageEvent(Entity entity) {
+        return new EntityDamageByBlockEvent(this, entity, EntityDamageEvent.DamageCause.FIRE, 1);
     }
 
     @Override
@@ -208,12 +235,14 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
         BlockEntityCampfire campfire = getOrCreateBlockEntity();
 
         boolean itemUsed = false;
-        if (item.isShovel() && !isExtinguished()) {
-            setExtinguished(true);
-            this.level.setBlock(this, this, true, true);
-            this.level.addSound(this, Sound.RANDOM_FIZZ, 0.5f, 2.2f);
-            itemUsed = true;
-        } else if (item.getId() == ItemID.FLINT_AND_STEEL || item.isSword() && item.hasEnchantment(Enchantment.ID_FIRE_ASPECT)) {
+        if (!isExtinguished()) {
+            if (item.isShovel()) {
+                setExtinguished(true);
+                this.level.setBlock(this, this, true, true);
+                this.level.addSound(this, Sound.RANDOM_FIZZ, 0.5f, 2.2f);
+                itemUsed = true;
+            }
+        } else if (item.getId() == ItemID.FLINT_AND_STEEL || item.getEnchantment(Enchantment.ID_FIRE_ASPECT) != null) {
             item.useOn(this);
             setExtinguished(false);
             this.level.setBlock(this, this, true, true);
@@ -245,6 +274,12 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
             setExtinguished(false);
             level.setBlock(this, this, true);
             return true;
+        } else if (projectile instanceof EntityPotion && !isExtinguished()) {
+            if (((EntityPotion) projectile).potionId == 0) {
+                setExtinguished(true);
+                level.setBlock(this, this, true);
+                return true;
+            }
         }
         return false;
     }
@@ -328,6 +363,6 @@ public class BlockCampfire extends BlockTransparentMeta implements Faceable, Blo
 
     @Override
     public boolean canBePushed() {
-        return false;
+        return true;
     }
 }

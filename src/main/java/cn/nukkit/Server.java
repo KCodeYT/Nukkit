@@ -242,7 +242,7 @@ public class Server {
         }
     };
 
-    private Level[] levelArray = Level.EMPTY_ARRAY;
+    private Level[] levelArray;
 
     private final ServiceManager serviceManager = new NKServiceManager();
 
@@ -279,10 +279,13 @@ public class Server {
             throw new IOException("Failed to delete " + tempDir);
         }
         instance = this;
+        config = new Config();
+        levelArray = Level.EMPTY_ARRAY;
         launchTime = System.currentTimeMillis();
-        CraftingManager.packet = new BatchPacket();
-        CraftingManager.packet.payload = EmptyArrays.EMPTY_BYTES;
-        
+        BatchPacket batchPacket = new BatchPacket();
+        batchPacket.payload = EmptyArrays.EMPTY_BYTES;
+        CraftingManager.packet = batchPacket;
+
         currentThread = Thread.currentThread();
         File abs = tempDir.getAbsoluteFile();
         filePath = abs.getPath();
@@ -299,7 +302,6 @@ public class Server {
         
         console = new NukkitConsole(this);
         consoleThread = new ConsoleThread();
-        config = new Config();
         properties = new Config();
         banByName = new BanList(dataPath + "banned-players.json");
         banByIP = new BanList(dataPath + "banned-ips.json");
@@ -495,6 +497,7 @@ public class Server {
 
         log.info("Loading {} ...", TextFormat.GREEN + "nukkit.yml" + TextFormat.WHITE);
         this.config = new Config(this.dataPath + "nukkit.yml", Config.YAML);
+        levelArray = Level.EMPTY_ARRAY;
 
         Nukkit.DEBUG = NukkitMath.clamp(this.getConfig("debug.level", 1), 1, 3);
 
