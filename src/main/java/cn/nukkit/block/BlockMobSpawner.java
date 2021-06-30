@@ -31,7 +31,7 @@ public class BlockMobSpawner extends BlockSolid implements BlockEntityHolder<Blo
 
     @Override
     public int getId() {
-        return MONSTER_SPAWNER;
+        return MOB_SPAWNER;
     }
 
     @Override
